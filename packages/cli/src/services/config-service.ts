@@ -14,10 +14,10 @@ type CompileAndLoadOptions = {
 export async function compileProjectAndLoadConfig(opts?: CompileAndLoadOptions): Promise<BoosterConfig> {
   const userProjectPath = process.cwd()
   await checkItIsABoosterProject()
+  await compileProject(userProjectPath)
   if (opts?.production) {
     await pruneDevDependencies()
   }
-  await compileProject(userProjectPath)
   return readProjectConfig(userProjectPath)
 }
 
