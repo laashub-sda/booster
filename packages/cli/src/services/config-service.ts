@@ -5,6 +5,7 @@ import { wrapExecError } from '../common/errors'
 import { checkItIsABoosterProject } from './project-checker'
 import { currentEnvironment } from './environment'
 import { pruneDevDependencies } from './dependencies'
+import { dynamicLoad } from './dynamic-loader'
 
 type CompileAndLoadOptions = {
   production: boolean
@@ -30,7 +31,7 @@ async function compileProject(projectPath: string): Promise<void> {
 
 function readProjectConfig(userProjectPath: string): Promise<BoosterConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const userProject = loadUserProject(userProjectPath)
+  const userProject: { Booster: BoosterApp } = dynamicLoad(path.join(userProjectPath, 'dist', 'index.js'))
   return new Promise((resolve): void => {
     const app: BoosterApp = userProject.Booster
     app.configureCurrentEnv((config: BoosterConfig): void => {
@@ -38,10 +39,6 @@ function readProjectConfig(userProjectPath: string): Promise<BoosterConfig> {
       resolve(config)
     })
   })
-}
-
-function loadUserProject(userProjectPath: string): { Booster: BoosterApp } {
-  return require(path.join(userProjectPath, 'dist', 'index.js'))
 }
 
 function checkEnvironmentWasConfigured(app: BoosterApp): void {
